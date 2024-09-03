@@ -1,5 +1,5 @@
-/vendor
+# /vendor
 /.idea
-.env
+# .env
 cache.txt
-database.sqlite
+# database.sqlite
