@@ -10,6 +10,8 @@ use App\EventSender\EventSender;
 
 use App\Models\Event;
 
+use App\Telegram\TelegramApiImpl;
+
 //use App\Models\EventDto;
 
 class HandleEventsCommand extends Command
@@ -31,45 +33,35 @@ class HandleEventsCommand extends Command
     {
 
         $event = new Event(new SQLite($this->app));
-
         $events = $event->select();
-
-        $eventSender = new EventSender();
-
+        $eventSender = new EventSender(new TelegramApiImpl($this->app->env('TELEGRAM_TOKEN')));
+        //die(var_dump(999));
         foreach ($events as $event) {
-
             if ($this->shouldEventBeRan($event)) {
-
-                $eventSender->sendMessage($event->receiverId, $event->text);
-
+                $eventSender->sendMessage($event['receiver_id'], $event['text']);
             }
-
         }
 
     }
 
-    private function shouldEventBeRan($event): bool
-
+    public function shouldEventBeRan(array $event): bool
     {
-        $currentMinute = date("i");
-
-        $currentHour = date("H");
-
-        $currentDay = date("d");
-
-        $currentMonth = date("m");
-
-        $currentWeekday = date("w");
-
-        return ($event['minute'] === $currentMinute &&
-
-            $event['hour'] === $currentHour &&
-
-            $event['day'] === $currentDay &&
-
-            $event['month'] === $currentMonth &&
-
-            $event['weekDay'] === $currentWeekday);
+        $result = true;
+        $map = [
+            // date => event
+            'i' => 'minute',
+            'H' => 'hour',
+            'd' => 'day',
+            'm' => 'month',
+            'w' => 'day_of_week',
+        ];
+        $check = [];
+        foreach ($map as $dateKey => $eventKey) {
+            $check["$eventKey -> $dateKey"] = "$event[$eventKey] -> $event[$eventKey]";
+            if (!($event[$eventKey] === null || (int)date($dateKey) === (int)$event[$eventKey])) {
+                $result = false;
+            }
+        }
+        return $result;
     }
-
 }
