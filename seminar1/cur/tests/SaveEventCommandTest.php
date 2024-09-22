@@ -1,12 +1,7 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
-use App\Application;
-use App\Commands\SaveEventCommand;
 
-/**
- * @covers \App\Commands\SaveEventCommand
- */
 class SaveEventCommandTest extends TestCase
 {
     /**
@@ -14,7 +9,7 @@ class SaveEventCommandTest extends TestCase
      */
     public function testIsNeedHelp(array $options, bool $isNeedHelp)
     {
-        $saveEventCommand = new SaveEventCommand(new Application(dirname(__DIR__)));
+        $saveEventCommand = new \App\Commands\SaveEventCommand(new \App\Application(dirname(__DIR__)));
         $result = $saveEventCommand->isNeedHelp($options);
         self::assertEquals($result, $isNeedHelp);
     }

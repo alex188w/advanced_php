@@ -1,12 +1,7 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
-use App\Application;
-use App\Commands\HandleEventsCommand;
 
-/**
- * @covers \App\Commands\HandleEventsCommand
- */
 class HandleEventsCommandTest extends TestCase
 {
     /**
@@ -14,7 +9,7 @@ class HandleEventsCommandTest extends TestCase
      */
     public function testShouldEventBeRanReceiveEventDtoAndReturnCorrectBool(array $event, bool $shouldEventBeRan): void
     {
-        $handleEventsCommand = new HandleEventsCommand(new Application(dirname(__DIR__)));
+        $handleEventsCommand = new \App\Commands\HandleEventsCommand(new \App\Application(dirname(__DIR__)));
         $result = $handleEventsCommand->shouldEventBeRan($event);
         self::assertEquals($result, $shouldEventBeRan);
     }
