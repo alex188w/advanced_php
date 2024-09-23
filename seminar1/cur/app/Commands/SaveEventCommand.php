@@ -2,6 +2,7 @@
 
 namespace App\Commands;
 
+use App\Actions\EventSaver;
 use App\Application;
 use App\Database\SQLite;
 use App\Models\Event;
@@ -38,7 +39,20 @@ class SaveEventCommand extends Command
             'month' => $cronValues[3],
             'day_of_week' => $cronValues[4]
         ];
-        $this->saveEvent($params);
+        
+        $eventModel = new Event(new SQLite($this->app));
+        
+        $eventSaver = new EventSaver($eventModel);
+        $eventSaver->handle($params);
+    }
+    
+    private function getCronValues(string $cronString): array
+    {
+        $cronValues = explode(" ", $cronString);
+        $cronValues = array_map(function ($item) {
+            return $item === "*" ? null : $item;
+        }, $cronValues);
+        return $cronValues;
     }
     
     private function getGetoptOptionValues(): array
@@ -67,38 +81,17 @@ class SaveEventCommand extends Command
     
     public function showHelp()
     {
-        echo " Это тестовый скрипт добавления правил
+        echo "
+                     	СПРАВКА
+        	Это тестовый скрипт добавления правил
+        	Чтобы добавить правило нужно перечислить следующие поля:
+        	--name Имя события
+        	--text Текст, который будет отправлен по событию
+        	--cron  Расписания отправки в формате cron
+        	--receiver Идентификатор получателя сообщения
 
-	Чтобы добавить правило нужно перечислить следующие поля:
-
-	--name Имя события
-
-	--text Текст, который будет отправлен по событию
-
-	--cron  Расписания отправки в формате cron
-
-	--receiver Идентификатор получателя сообщения
-
-	Для справки используйте флаги -h или --help
+        	Для справки используйте флаги -h или --help
 
 ";
-    }
-    
-    private function getCronValues(string $cronString): array
-    {
-        $cronValues = explode(" ", $cronString);
-        $cronValues = array_map(function ($item) {
-            return $item === "*" ? null : $item;
-        }, $cronValues);
-        return $cronValues;
-    }
-    
-    private function saveEvent(array $params): void
-    {
-        $event = new Event(new SQLite($this->app));
-        $event->insert(
-            implode(', ', array_keys($params)),
-            array_values($params)
-        );
     }
 }
