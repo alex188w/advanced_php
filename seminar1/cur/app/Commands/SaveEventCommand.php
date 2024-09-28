@@ -11,24 +11,28 @@ use App\Models\Event;
 class SaveEventCommand extends Command
 {
     protected Application $app;
-    
+
     public function __construct(Application $app)
     {
         $this->app = $app;
     }
-    
+
     public function run(array $options = []): void
     {
         $options = $this->getGetoptOptionValues();
+
         if ($this->isNeedHelp($options)) {
             $this->showHelp();
             return;
         }
+
         $cronValues = $this->getCronValues($options['cron']);
+
         if (count($cronValues) != 5) {
             $this->showHelp();
             return;
         }
+
         $params = [
             'name' => $options['name'],
             'text' => $options['text'],
@@ -39,13 +43,13 @@ class SaveEventCommand extends Command
             'month' => $cronValues[3],
             'day_of_week' => $cronValues[4]
         ];
-        
+
         $eventModel = new Event(new SQLite($this->app));
-        
+
         $eventSaver = new EventSaver($eventModel);
         $eventSaver->handle($params);
     }
-    
+
     private function getCronValues(string $cronString): array
     {
         $cronValues = explode(" ", $cronString);
@@ -54,10 +58,11 @@ class SaveEventCommand extends Command
         }, $cronValues);
         return $cronValues;
     }
-    
+
     private function getGetoptOptionValues(): array
     {
         $shortopts = 'c:h:';
+
         $longopts = [
             "command:",
             "name:",
@@ -66,9 +71,10 @@ class SaveEventCommand extends Command
             "cron:",
             "help:",
         ];
+
         return getopt($shortopts, $longopts);
     }
-    
+
     public function isNeedHelp(array $options): bool
     {
         return !isset($options['name']) ||
@@ -78,7 +84,7 @@ class SaveEventCommand extends Command
             isset($options['help']) ||
             isset($options['h']);
     }
-    
+
     public function showHelp()
     {
         echo "
