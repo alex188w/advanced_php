@@ -53,19 +53,16 @@ class HandleEventsDaemonCommand extends Command
         while (true) {
             if ($lastData === $this->getCurrentTime()) {
                 sleep(10);
-
                 continue;
             }
 
             $handleEventsCommand->run($options);
-
             $lastData = $this->getCurrentTime();
-
             sleep(10);
         }
     }
 
-    private function getCurrentTime(): array
+    public function getCurrentTime(): array
     {
         return [
             date("i"),
